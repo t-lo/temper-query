@@ -21,7 +21,9 @@ static const struct TEMPerdev_types {
     unsigned short prod;
     const char * desc;
 } devtypes[] = {
-    { 0x3553, 0xa001, "PCSensor TEMPer Gold (2026)" },
+    //TODO: check out https://github.com/ccwienk/temper#supported-devices for
+    //more
+    { 0x3553, 0xa001, "PCSensor TEMPer Gold v3.5" },
     { 0x413d, 0x2107, "PCSensor TEMPer Gold v3.1" }
 };
 
