@@ -32,7 +32,7 @@ static const struct TEMPerdevs {
 hid_device* init_device(unsigned short vend, unsigned short prod)
 {
     // Attempt to open and return TEMPer device
-    hid_device *dev;
+    hid_device *dev = NULL;
     struct hid_device_info *infos = hid_enumerate( vend, prod );
     if ( infos )
     {
