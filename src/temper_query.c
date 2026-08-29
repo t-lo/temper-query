@@ -11,29 +11,29 @@
 
 #include <hidapi/hidapi.h>
 
-#define VENDOR_ID  0x413d
-#define PRODUCT_ID 0x2107
-
-// Opening the device by VID/PID fails to open the *correct interface* of the
-// HID device described by the VID/PIN pair. Instead, a workaround that opens
-// the correct interface by its path is used.
-//#define OPEN_BY_VID_PID
-
 #define QUERY     {0x01, 0x80, 0x33, 0x01, 0x00, 0x00, 0x00, 0x00}
 #define QUERY_LEN 8
 #define DATA_LEN  8
 
+static const struct TEMPerdevs {
+    unsigned short vend;
+    unsigned short prod;
+    const char * desc;
+} devs[] = 
+{
+    { 0x3553, 0xa001, "PCSensor TEMPer Gold (2026)" },
+    { 0x413d, 0x2107, "PCSensor TEMPer Gold v3.1" }
+};
+
+
 /*
  * Initializes the TEMPer device using its vendor and product ID.
  */
-hid_device* init_device()
+hid_device* init_device(unsigned short vend, unsigned short prod)
 {
     // Attempt to open and return TEMPer device
     hid_device *dev;
-#ifdef OPEN_BY_VID_PID
-    dev = hid_open( VENDOR_ID, PRODUCT_ID, NULL );
-#else
-    struct hid_device_info *infos = hid_enumerate( VENDOR_ID, PRODUCT_ID );
+    struct hid_device_info *infos = hid_enumerate( vend, prod );
     if ( infos )
     {
         struct hid_device_info *info;
@@ -46,15 +46,33 @@ hid_device* init_device()
         }
         hid_free_enumeration( infos );
     }
-#endif
-    if ( !dev )
+    if ( ! dev )
     {
-        fprintf( stderr, "Error: could not access TEMPer device\n" );
         fwprintf( stderr, hid_error( dev ) );
+        fprintf( stderr, "  No accessible device found.\n" );
     }
     return dev;
 }
 
+/*
+ * Iterate through supported TEMPer devices. Return first match or NULL.
+ */
+hid_device * find_device()
+{
+    int i;
+    for ( i=0; i<( sizeof(devs)/sizeof(devs[0]) ); i++)
+    {
+        fprintf( stderr, "Probing %s: ", devs[i].desc );
+        hid_device* ret = init_device(devs[i].vend, devs[i].prod);
+        if (ret)
+        {
+            fprintf( stderr, "Success!\n" );
+            return ret;
+        }
+    }
+    fprintf( stderr, "No supported device found.\n" );
+    return NULL;
+}
 
 /*
  * Queries the TEMPer device for the current temperature, in degrees Celsius,
@@ -91,7 +109,7 @@ int main(int argc, char** argv)
         return 1;
     }
     // Initialize the TEMPer device
-    hid_device *dev = init_device();
+    hid_device *dev = find_device();
     if ( !dev )
     {
         return 2;
@@ -101,4 +119,3 @@ int main(int argc, char** argv)
     printf( "%.2f\n", temp );
     return 0;
 }
-
