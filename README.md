@@ -30,6 +30,14 @@ The resulting executable can then be installed to the system:
 
     $ sudo make install
 
+To simplify static linked builds and cross-compilation, a wrapper build script
+`container-build.sh` is provided.
+This script will start an ephemeral Alpine container, install dependencies, and
+statically compile `temper_query`.
+Note that the script bypasses `configure` and `make`, and instead calls `gcc`
+directly.
+
+
 ### HIDAPI Dependency
 
 `temper_query` depends on HIDAPI to query and receive the temperature response
