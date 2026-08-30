@@ -1,42 +1,51 @@
 `temper_query`
 ==============
 
-Keep It Simple, Stupid, (KISS) userspace driver for the TEMPer_Gold_v3.1
-temperature sensor.
+Keep It Simple, Stupid, (KISS) userspace driver for TEMPer temperature and
+humidity sensors.
+
+[Releases](https://github.com/t-lo/temper-query/releases/) include self-contained static binaries w/o dependencies,
+usable for embedded systems.
+
+If you're rather looking for a full-featured stack, check out
+[temper.py](https://github.com/ccwienk/temper).
+Please note that `temper.py` is unrelated to this project.
+
 
 Goals
 -----
 
-Built to support querying the temperature from the TEMPer_Gold_v3.1 sensor on a
+Built to support querying temperature and humidity from TEMPer sensors on a
 embedded Linux environment (like the Raspberry Pi) with minimal dependencies
 (only [HIDAPI](https://github.com/signal11/hidapi)).  Though untested, it should
-be readily cross-platform amongst POSIX systems and easily ported to Windows
-systems.
+be readily cross-platform amongst POSIX systems.
 
-Due to nuanced variations in various TEMPer devices, it is unlikely to, but may,
-support other TEMPer sensor versions.
+Most devices supported by
+[`temper.py`](https://github.com/ccwienk/temper#supported-devicesa) are
+supported, though few are tested.
 
 Build
 -----
 
 `temper_query` can be built using the standard POSIX build procedure:
-
-    $ cd temper_query
-    $ mkdir build && cd build
-    $ ../configure
-    $ make
+```bash
+cd temper_query
+mkdir build && cd build
+../configure
+make
+```
 
 The resulting executable can then be installed to the system:
+```
+sudo make install
+```
 
-    $ sudo make install
+### Static build in Docker container
 
-To simplify static linked builds and cross-compilation, a wrapper build script
-`container-build.sh` is provided.
-This script will start an ephemeral Alpine container, install dependencies, and
-statically compile `temper_query`.
-Note that the script bypasses `configure` and `make`, and instead calls `gcc`
-directly.
-
+To simplify static linked builds and cross-compilation, a wrapper build script `container-build.sh` is provided.
+This script will start an ephemeral Alpine container, install dependencies, and statically compile `temper_query`.
+It doesn't require any local dependencies (except `docker`).
+Note that the script bypasses `configure` and `make`, and instead calls `gcc` directly.
 
 ### HIDAPI Dependency
 
@@ -49,24 +58,21 @@ Run
 ---
 
 The `temper_query` can then be run (with elevated privileges to allow direct USB
-access to the TEMPer sensor):
-
-    $ sudo temper_query
-
-If successful, `termper_query` will print the current temperature in degrees
-Celsius to standard output.
+access to the TEMPer sensor).
+If successful, `termper_query` will print temperature and humidity (if
+supported) of all devices found, one device per line.
+```bash
+sudo ./temper_query
+/dev/hidraw2,TEMPerGold,TEMPerGold_V3.5 ,int-temp:26.43
+/dev/hidraw4,TEMPerGold,TEMPerGold_V3.5 ,int-temp:27.25
+```
+The above example shows 2 `TEMPerGold_V3.5` temperature sensord.
 
 Acknowledgements
 ----------------
 
-As my first project working directly with raw HID USB, I would not have been
-able to hack together this program without standing on the shoulders of previous
-work:
+This project is based on C. Ansel Horn's `temper_query`
+https://github.com/cahorn/temper-query .
 
-* [This](https://github.com/padelt/temper-python/issues/84) forum thread on the
-  [temper-python](https://github.com/padelt/temper-python) repository
-* [This](https://github.com/edorfaus/TEMPered/issues/51) forum thread on the
-  [TEMPered](https://github.com/edorfaus/TEMPered) repository
-* The [source code](https://github.com/edorfaus/TEMPered/blob/master/utils/hid-query.c)
-  of the `hid-query` utility
-
+Many of the device definitions are taken from
+[`temper.py`](https://github.com/ccwienk/temper#supported-devicesa).
