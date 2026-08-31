@@ -27,9 +27,13 @@ jobs:
         run: |
           bash ./container-build.sh "linux/arm64/v8"
           mv temper_query temper_query.arm64
+      - name: build ARMv7 (le)
+        run: |
+          bash ./container-build.sh "linux/arm/v7"
+          mv temper_query temper_query.armv7l
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
-          files: temper_query.arm64, temper_query.amd64
+          files: temper_query.*
           generate_release_notes: true

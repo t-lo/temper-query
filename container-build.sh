@@ -6,6 +6,7 @@ set -euo pipefail
 
 platform="linux/x86-64"
 #platform="linux/arm64/v8"
+#platform="linux/arm/v7"
 
 # This 
 build() {
